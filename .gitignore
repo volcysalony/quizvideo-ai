@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# QuizVideo AI - local storage
+/storage/images/*
+/storage/audio/*
+/storage/music/*
+/storage/effects/*
+/storage/renders/*
+/storage/temp/*
+
+# Keep folders
+!/storage/images/.gitkeep
+!/storage/audio/.gitkeep
+!/storage/music/.gitkeep
+!/storage/effects/.gitkeep
+!/storage/renders/.gitkeep
+!/storage/temp/.gitkeep
