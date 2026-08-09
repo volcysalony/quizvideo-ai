@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "remotion": "remotion studio src/remotion/index.ts",
+    "render:quiz": "remotion render src/remotion/index.ts QuizVertical storage/renders/quiz-demo.mp4"
   },
   "dependencies": {
     "@prisma/client": "^7.9.1",
