@@ -5,44 +5,44 @@ import {
   useCurrentFrame,
 } from "remotion";
 
-import type {
-  QuizQuestion as QuizQuestionType,
-} from "../data/demoQuiz";
+import type { QuizQuestion as QuizQuestionType } from "../types/quiz";
 
 import { QuestionCard } from "./QuestionCard";
 import { AnswerOption } from "./AnswerOption";
 import { CountdownBar } from "./CountdownBar";
+import { QuizTitle } from "./QuizTitle";
 
 type Props = {
+  quizTitle: string;
+
   question: QuizQuestionType;
+
   fps: number;
+  introSeconds: number;
+  countdownSeconds: number;
 };
 
 export const QuizQuestion: React.FC<Props> = ({
+  quizTitle,
   question,
   fps,
+  introSeconds,
+  countdownSeconds,
 }) => {
   const frame = useCurrentFrame();
 
-  // 1 segundo antes do contador
-  const introDuration = fps;
+  const introDuration =
+    fps * introSeconds;
 
-  // contador de 6 segundos
-  const countdownDuration = fps * 6;
+  const countdownDuration =
+    fps * countdownSeconds;
 
-  // momento em que mostramos a resposta
   const revealFrame =
     introDuration + countdownDuration;
 
   const showCorrect =
     frame >= revealFrame;
 
-  /*
-   * Pequena animação de entrada.
-   *
-   * Não queremos exagerar porque
-   * quiz precisa ser rápido.
-   */
   const entrance = interpolate(
     frame,
     [0, 12],
@@ -59,7 +59,6 @@ export const QuizQuestion: React.FC<Props> = ({
         height: "100%",
 
         position: "relative",
-
         overflow: "hidden",
 
         backgroundColor:
@@ -69,9 +68,7 @@ export const QuizQuestion: React.FC<Props> = ({
           "Arial, Helvetica, sans-serif",
       }}
     >
-      {/* ========================= */}
-      {/* FUNDO DINÂMICO            */}
-      {/* ========================= */}
+      {/* FUNDO */}
 
       <div
         style={{
@@ -93,7 +90,7 @@ export const QuizQuestion: React.FC<Props> = ({
         }}
       />
 
-      {/* Faixas diagonais */}
+      {/* FAIXAS */}
 
       <div
         style={{
@@ -110,7 +107,7 @@ export const QuizQuestion: React.FC<Props> = ({
         }}
       />
 
-      {/* Bolinhas decorativas */}
+      {/* PONTOS DECORATIVOS */}
 
       <div
         style={{
@@ -127,13 +124,12 @@ export const QuizQuestion: React.FC<Props> = ({
           backgroundImage:
             "radial-gradient(#FFFFFF 4px, transparent 4px)",
 
-          backgroundSize: "28px 28px",
+          backgroundSize:
+            "28px 28px",
         }}
       />
 
-      {/* ========================= */}
-      {/* CONTEÚDO                  */}
-      {/* ========================= */}
+      {/* CONTEÚDO */}
 
       <div
         style={{
@@ -154,45 +150,20 @@ export const QuizQuestion: React.FC<Props> = ({
 
           alignItems: "center",
 
-          transform: `scale(${entrance})`,
+          transform:
+            `scale(${entrance})`,
         }}
       >
-        {/* Branding */}
+        <QuizTitle title={quizTitle} />
 
-        <div
-          style={{
-            display: "flex",
-
-            alignItems: "center",
-            justifyContent: "center",
-
-            height: 90,
-
-            marginBottom: 42,
-
-            fontSize: 48,
-
-            fontWeight: 900,
-
-            letterSpacing: 2,
-
-            color: "#FFFFFF",
-
-            textShadow:
-              "0 4px 0 rgba(0,0,0,0.25)",
-          }}
-        >
-          QUIZVIDEO
-        </div>
-
-        {/* Card */}
+        {/* PERGUNTA */}
 
         <QuestionCard
           question={question.question}
           image={question.image}
         />
 
-        {/* Timer */}
+        {/* TIMER */}
 
         <div
           style={{
@@ -202,14 +173,16 @@ export const QuizQuestion: React.FC<Props> = ({
           }}
         >
           <CountdownBar
-            startFrame={introDuration}
+            startFrame={
+              introDuration
+            }
             durationInFrames={
               countdownDuration
             }
           />
         </div>
 
-        {/* Respostas */}
+        {/* RESPOSTAS */}
 
         <div
           style={{
@@ -230,12 +203,14 @@ export const QuizQuestion: React.FC<Props> = ({
                 letter={String.fromCharCode(
                   65 + index
                 )}
-                text={option}
+                text={option.text}
                 isCorrect={
                   index ===
                   question.correctAnswer
                 }
-                showCorrect={showCorrect}
+                showCorrect={
+                  showCorrect
+                }
               />
             )
           )}
