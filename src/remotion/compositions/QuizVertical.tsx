@@ -1,27 +1,68 @@
 import React from "react";
-import { Sequence, useVideoConfig } from "remotion";
-import { demoQuiz } from "../data/demoQuiz";
+
+import {
+  Sequence,
+  useVideoConfig,
+} from "remotion";
+
+import type { QuizVideoProps } from "../types/quiz";
+
 import { QuizQuestion } from "../components/QuizQuestion";
 
-export const QuizVertical: React.FC = () => {
-  const { fps } = useVideoConfig();
+export const QuizVertical: React.FC<
+  QuizVideoProps
+> = ({
+  title,
 
-  const questionDuration = fps * 9;
+  introSeconds,
+  countdownSeconds,
+  revealSeconds,
+
+  questions,
+}) => {
+  const { fps } =
+    useVideoConfig();
+
+  const secondsPerQuestion =
+    introSeconds +
+    countdownSeconds +
+    revealSeconds;
+
+  const questionDuration =
+    fps * secondsPerQuestion;
 
   return (
     <>
-      {demoQuiz.map((question, index) => (
-        <Sequence
-          key={question.id}
-          from={index * questionDuration}
-          durationInFrames={questionDuration}
-        >
-          <QuizQuestion
-            question={question}
-            fps={fps}
-          />
-        </Sequence>
-      ))}
+      {questions.map(
+        (question, index) => (
+          <Sequence
+            key={question.id}
+            from={
+              index *
+              questionDuration
+            }
+            durationInFrames={
+              questionDuration
+            }
+          >
+            <QuizQuestion
+              quizTitle={title}
+
+              question={question}
+
+              fps={fps}
+
+              introSeconds={
+                introSeconds
+              }
+
+              countdownSeconds={
+                countdownSeconds
+              }
+            />
+          </Sequence>
+        )
+      )}
     </>
   );
 };
