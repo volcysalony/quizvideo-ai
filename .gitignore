@@ -31,6 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+.env
 .env*
 
 # vercel
@@ -57,3 +58,24 @@ next-env.d.ts
 !/storage/effects/.gitkeep
 !/storage/renders/.gitkeep
 !/storage/temp/.gitkeep
+
+# Local AI / editor tooling
+.agents/
+.claude/
+.windsurf/
+
+# Optional local agent files
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+
+# Local SQLite database
+/dev.db
+/prisma/dev.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Generated uploads
+/public/uploads/questions/*
+!/public/uploads/questions/.gitkeep
