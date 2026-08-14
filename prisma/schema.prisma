@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,4 +5,88 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
+
+model Project {
+  id    String @id @default(cuid())
+  title String
+
+  format String @default("VERTICAL")
+
+  width  Int @default(1080)
+  height Int @default(1920)
+  fps    Int @default(30)
+
+  introSeconds     Float @default(1)
+  countdownSeconds Float @default(6)
+  revealSeconds    Float @default(2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions Question[]
+  renders   Render[]
+}
+
+model Question {
+  id String @id @default(cuid())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  text String
+
+  imagePath String?
+
+  correctAnswer Int
+
+  backgroundColor String @default("#9333EA")
+
+  position Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  options Option[]
+
+  @@unique([projectId, position])
+  @@index([projectId])
+}
+
+model Option {
+  id String @id @default(cuid())
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  text String
+
+  imagePath String?
+
+  position Int
+
+  @@unique([questionId, position])
+  @@index([questionId])
+}
+
+model Render {
+  id String @id @default(cuid())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  status String @default("PENDING")
+
+  progress Int @default(0)
+
+  outputPath String?
+
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  @@index([projectId])
 }
