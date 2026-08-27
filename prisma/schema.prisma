@@ -38,6 +38,15 @@ model Question {
 
   imagePath String?
 
+  // Enquadramento da imagem principal
+  imageFit       String @default("CONTAIN")
+  imagePositionX Float  @default(50)
+  imagePositionY Float  @default(50)
+  imageScale     Float  @default(1)
+
+  // TEXT | IMAGE | IMAGE_TEXT
+  answerMode String @default("TEXT")
+
   correctAnswer Int
 
   backgroundColor String @default("#9333EA")
@@ -62,6 +71,12 @@ model Option {
   text String
 
   imagePath String?
+
+  // Enquadramento da imagem da alternativa
+  imageFit       String @default("COVER")
+  imagePositionX Float  @default(50)
+  imagePositionY Float  @default(50)
+  imageScale     Float  @default(1)
 
   position Int
 

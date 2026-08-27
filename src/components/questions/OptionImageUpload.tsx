@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 
 import {
-  removeQuestionImage,
-  uploadQuestionImageCompact,
-  type QuestionImageState,
-} from "@/app/projetos/[id]/question-image-actions";
+  removeOptionImage,
+  uploadOptionImage,
+  type OptionImageState,
+} from "@/app/projetos/[id]/option-image-actions";
 
 import {
   ImageFramingEditor,
@@ -27,10 +27,17 @@ import {
 type Props = {
   projectId: string;
   questionId: string;
+  optionId: string;
+  letter: string;
   imagePath: string | null;
+
+  onImageChange?: (
+    path:
+      string | null
+  ) => void;
 };
 
-const INITIAL_STATE: QuestionImageState = {
+const INITIAL_STATE: OptionImageState = {
   success:
     false,
 
@@ -41,10 +48,13 @@ const INITIAL_STATE: QuestionImageState = {
     0,
 };
 
-export function QuestionImageUpload({
+export function OptionImageUpload({
   projectId,
   questionId,
+  optionId,
+  letter,
   imagePath,
+  onImageChange,
 }: Props) {
   const formRef =
     useRef<HTMLFormElement>(
@@ -73,23 +83,25 @@ export function QuestionImageUpload({
     );
 
   const [
-    notice,
-    setNotice,
+    error,
+    setError,
   ] =
     useState("");
 
   const uploadAction =
-    uploadQuestionImageCompact.bind(
+    uploadOptionImage.bind(
       null,
       projectId,
-      questionId
+      questionId,
+      optionId
     );
 
   const removeAction =
-    removeQuestionImage.bind(
+    removeOptionImage.bind(
       null,
       projectId,
-      questionId
+      questionId,
+      optionId
     );
 
   const [
@@ -127,10 +139,6 @@ export function QuestionImageUpload({
       return;
     }
 
-    setNotice(
-      uploadState.message
-    );
-
     if (
       uploadState.success &&
       uploadState.imagePath
@@ -143,15 +151,32 @@ export function QuestionImageUpload({
         null
       );
 
+      setError("");
+
+      onImageChange?.(
+        uploadState.imagePath
+      );
+
       if (
         inputRef.current
       ) {
         inputRef.current.value =
           "";
       }
+
+      return;
     }
+
+    setPreviewUrl(
+      null
+    );
+
+    setError(
+      uploadState.message
+    );
   }, [
     uploadState,
+    onImageChange,
   ]);
 
   useEffect(() => {
@@ -160,10 +185,6 @@ export function QuestionImageUpload({
     ) {
       return;
     }
-
-    setNotice(
-      removeState.message
-    );
 
     if (
       removeState.success
@@ -175,33 +196,22 @@ export function QuestionImageUpload({
       setPreviewUrl(
         null
       );
-    }
-  }, [
-    removeState,
-  ]);
 
-  useEffect(() => {
-    if (!notice) {
+      setError("");
+
+      onImageChange?.(
+        null
+      );
+
       return;
     }
 
-    const timer =
-      window.setTimeout(
-        () => {
-          setNotice(
-            ""
-          );
-        },
-        3000
-      );
-
-    return () => {
-      window.clearTimeout(
-        timer
-      );
-    };
+    setError(
+      removeState.message
+    );
   }, [
-    notice,
+    removeState,
+    onImageChange,
   ]);
 
   function chooseImage() {
@@ -232,7 +242,7 @@ export function QuestionImageUpload({
       )
     );
 
-    setNotice("");
+    setError("");
 
     window.setTimeout(
       () => {
@@ -253,11 +263,7 @@ export function QuestionImageUpload({
   return (
     <div
       className="
-        rounded-2xl
-        border
-        border-white/10
-        bg-black/20
-        p-3
+        shrink-0
       "
     >
       <div
@@ -265,15 +271,27 @@ export function QuestionImageUpload({
           flex
           flex-wrap
           items-center
-          gap-3
+          justify-end
+          gap-2
         "
       >
-        <div
+        {/* MINIATURA */}
+
+        <button
+          type="button"
+          onClick={
+            localPath
+              ? undefined
+              : chooseImage
+          }
+          disabled={
+            busy
+          }
           className="
             relative
             flex
-            h-[72px]
-            w-[96px]
+            h-14
+            w-[74px]
             shrink-0
             items-center
             justify-center
@@ -298,7 +316,7 @@ export function QuestionImageUpload({
             />
           ) : (
             <ImagePlus
-              size={22}
+              size={20}
               className="
                 text-zinc-600
               "
@@ -313,11 +331,11 @@ export function QuestionImageUpload({
                 flex
                 items-center
                 justify-center
-                bg-black/60
+                bg-black/65
               "
             >
               <Loader2
-                size={20}
+                size={18}
                 className="
                   animate-spin
                   text-white
@@ -325,100 +343,59 @@ export function QuestionImageUpload({
               />
             </div>
           )}
-        </div>
+        </button>
 
-        <div
-          className="
-            min-w-[160px]
-            flex-1
-          "
-        >
-          <p
-            className="
-              text-sm
-              font-bold
-              text-white
-            "
-          >
-            Imagem da pergunta
-          </p>
-
-          <p
-            className="
-              mt-1
-              text-xs
-              text-zinc-500
-            "
-          >
-            Opcional
-          </p>
-        </div>
-
-        <div
-          className="
-            flex
-            flex-wrap
-            items-center
-            gap-2
-          "
-        >
-          {localPath && (
+        {localPath ? (
+          <>
             <ImageFramingEditor
-              target="QUESTION"
+              target="OPTION"
               projectId={
                 projectId
               }
               questionId={
                 questionId
               }
+              optionId={
+                optionId
+              }
               imagePath={
                 localPath
               }
-              label="Imagem da pergunta"
+              label={`Alternativa ${letter}`}
             />
-          )}
 
-          <button
-            type="button"
-            onClick={
-              chooseImage
-            }
-            disabled={
-              busy
-            }
-            className="
-              inline-flex
-              items-center
-              gap-1.5
-              rounded-lg
-              border
-              border-white/10
-              bg-white/5
-              px-3
-              py-2
-              text-xs
-              font-bold
-              text-zinc-300
-              transition
-              hover:bg-white/10
-            "
-          >
-            {localPath ? (
+            <button
+              type="button"
+              onClick={
+                chooseImage
+              }
+              disabled={
+                busy
+              }
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-lg
+                border
+                border-white/10
+                bg-white/5
+                px-2.5
+                py-2
+                text-xs
+                font-bold
+                text-zinc-300
+                transition
+                hover:bg-white/10
+              "
+            >
               <RefreshCw
                 size={14}
               />
-            ) : (
-              <ImagePlus
-                size={14}
-              />
-            )}
 
-            {localPath
-              ? "Trocar"
-              : "Adicionar"}
-          </button>
+              Trocar
+            </button>
 
-          {localPath && (
             <form
               action={
                 removeFormAction
@@ -428,7 +405,7 @@ export function QuestionImageUpload({
               ) => {
                 if (
                   !window.confirm(
-                    "Remover a imagem da pergunta?"
+                    `Remover a imagem da alternativa ${letter}?`
                   )
                 ) {
                   event.preventDefault();
@@ -448,7 +425,7 @@ export function QuestionImageUpload({
                   border
                   border-red-500/20
                   bg-red-500/[0.05]
-                  px-3
+                  px-2.5
                   py-2
                   text-xs
                   font-bold
@@ -471,8 +448,38 @@ export function QuestionImageUpload({
                 Remover
               </button>
             </form>
-          )}
-        </div>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={
+              chooseImage
+            }
+            disabled={
+              busy
+            }
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-lg
+              border
+              border-violet-500/20
+              bg-violet-500/[0.06]
+              px-3
+              py-2
+              text-xs
+              font-bold
+              text-violet-300
+            "
+          >
+            <ImagePlus
+              size={14}
+            />
+
+            Adicionar imagem
+          </button>
+        )}
       </div>
 
       <form
@@ -497,16 +504,16 @@ export function QuestionImageUpload({
         />
       </form>
 
-      {notice && (
+      {error && (
         <p
           className="
-            mt-2
-            text-xs
-            font-semibold
-            text-zinc-400
+            mt-1
+            text-right
+            text-[11px]
+            text-red-400
           "
         >
-          {notice}
+          {error}
         </p>
       )}
     </div>

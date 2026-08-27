@@ -31,8 +31,10 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+# env files
 .env
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -57,7 +59,8 @@ next-env.d.ts
 !/storage/music/.gitkeep
 !/storage/effects/.gitkeep
 !/storage/renders/.gitkeep
-!/storage/temp/.gitkeep
+/storage/tmp/*
+!/storage/tmp/.gitkeep
 
 # Local AI / editor tooling
 .agents/
@@ -79,3 +82,7 @@ skills-lock.json
 # Generated uploads
 /public/uploads/questions/*
 !/public/uploads/questions/.gitkeep
+
+# Generated option uploads
+/public/uploads/options/*
+!/public/uploads/options/.gitkeep

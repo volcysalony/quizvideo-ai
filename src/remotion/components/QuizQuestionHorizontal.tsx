@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+  Img,
   interpolate,
   staticFile,
   useCurrentFrame,
@@ -17,6 +18,10 @@ import {
 import {
   QuizTitle,
 } from "./QuizTitle";
+
+import {
+  HorizontalImageAnswerOption,
+} from "./HorizontalImageAnswerOption";
 
 type Props = {
   quizTitle: string;
@@ -37,26 +42,36 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
   introSeconds,
   countdownSeconds,
 }) => {
-  const frame = useCurrentFrame();
+  const frame =
+    useCurrentFrame();
 
   const introDuration =
-    fps * introSeconds;
+    fps *
+    introSeconds;
 
   const countdownDuration =
-    fps * countdownSeconds;
+    fps *
+    countdownSeconds;
 
   const revealFrame =
     introDuration +
     countdownDuration;
 
   const showCorrect =
-    frame >= revealFrame;
+    frame >=
+    revealFrame;
 
   const entrance =
     interpolate(
       frame,
-      [0, 12],
-      [0.96, 1],
+      [
+        0,
+        12,
+      ],
+      [
+        0.96,
+        1,
+      ],
       {
         extrapolateLeft:
           "clamp",
@@ -65,6 +80,16 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
           "clamp",
       }
     );
+
+  const answerMode =
+    question.answerMode ??
+    "TEXT";
+
+  const usesImages =
+    answerMode ===
+      "IMAGE" ||
+    answerMode ===
+      "IMAGE_TEXT";
 
   const imageSrc =
     question.image
@@ -79,12 +104,17 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
   return (
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        width:
+          "100%",
 
-        position: "relative",
+        height:
+          "100%",
 
-        overflow: "hidden",
+        position:
+          "relative",
+
+        overflow:
+          "hidden",
 
         backgroundColor:
           question.backgroundColor,
@@ -93,12 +123,15 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
           "Arial, Helvetica, sans-serif",
       }}
     >
-      {/* FUNDO DECORATIVO */}
+      {/* FUNDO */}
 
       <div
         style={{
-          position: "absolute",
-          inset: 0,
+          position:
+            "absolute",
+
+          inset:
+            0,
 
           background: `
             radial-gradient(
@@ -106,7 +139,6 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
               rgba(255,255,255,0.15),
               transparent 28%
             ),
-
             radial-gradient(
               circle at 92% 80%,
               rgba(0,0,0,0.10),
@@ -118,11 +150,14 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
 
       <div
         style={{
-          position: "absolute",
+          position:
+            "absolute",
 
-          inset: "-300px",
+          inset:
+            "-300px",
 
-          opacity: 0.07,
+          opacity:
+            0.07,
 
           transform:
             "rotate(8deg)",
@@ -134,15 +169,23 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
 
       <div
         style={{
-          position: "absolute",
+          position:
+            "absolute",
 
-          right: 30,
-          bottom: 20,
+          right:
+            30,
 
-          width: 300,
-          height: 300,
+          bottom:
+            20,
 
-          opacity: 0.06,
+          width:
+            300,
+
+          height:
+            300,
+
+          opacity:
+            0.06,
 
           backgroundImage:
             "radial-gradient(#FFFFFF 4px, transparent 4px)",
@@ -156,20 +199,26 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
 
       <div
         style={{
-          position: "relative",
+          position:
+            "relative",
 
-          zIndex: 2,
+          zIndex:
+            2,
 
-          width: "100%",
-          height: "100%",
+          width:
+            "100%",
+
+          height:
+            "100%",
 
           boxSizing:
             "border-box",
 
           padding:
-            "34px 90px 42px",
+            "26px 78px 34px",
 
-          display: "flex",
+          display:
+            "flex",
 
           flexDirection:
             "column",
@@ -181,18 +230,18 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
             `scale(${entrance})`,
         }}
       >
-        {/* TÍTULO DO QUIZ */}
+        {/* TÍTULO */}
 
         <div
           style={{
             transform:
-              "scale(0.72)",
+              "scale(0.68)",
 
             transformOrigin:
               "top center",
 
             marginBottom:
-              -18,
+              -30,
           }}
         >
           <QuizTitle
@@ -202,13 +251,15 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
           />
         </div>
 
-        {/* PERGUNTA CENTRALIZADA */}
+        {/* PERGUNTA */}
 
         <div
           style={{
-            width: "100%",
+            width:
+              "100%",
 
-            minHeight: 175,
+            minHeight:
+              155,
 
             backgroundColor:
               "#FFFFFF",
@@ -216,18 +267,20 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
             border:
               "5px solid #111111",
 
-            borderRadius: 34,
+            borderRadius:
+              32,
 
             boxShadow:
-              "0 12px 0 rgba(0,0,0,0.18)",
+              "0 11px 0 rgba(0,0,0,0.18)",
 
             boxSizing:
               "border-box",
 
             padding:
-              "28px 48px",
+              "24px 44px",
 
-            display: "flex",
+            display:
+              "flex",
 
             alignItems:
               "center",
@@ -241,99 +294,97 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
         >
           <div
             style={{
-              fontSize: 54,
+              fontSize:
+                51,
 
-              fontWeight: 900,
+              fontWeight:
+                900,
 
-              lineHeight: 1.05,
+              lineHeight:
+                1.05,
 
               letterSpacing:
                 "-1.5px",
 
-              color: "#111111",
+              color:
+                "#111111",
 
               textTransform:
                 "uppercase",
 
-              maxWidth: 1500,
+              maxWidth:
+                1550,
             }}
           >
-            {
-              question.question
-            }
+            {question.question}
           </div>
         </div>
 
-        {/* IMAGEM + RESPOSTAS */}
+        {/* =================================================
+            MODO TEXTO
+            ================================================= */}
 
-        <div
-          style={{
-            width: "100%",
-
-            flex: 1,
-
-            marginTop: 30,
-
-            display: "grid",
-
-            gridTemplateColumns:
-              "0.95fr 1.05fr",
-
-            gap: 34,
-
-            minHeight: 0,
-          }}
-        >
-          {/* IMAGEM */}
-
+        {!usesImages && (
           <div
             style={{
-              width: "100%",
+              width:
+                "100%",
 
-              height: "100%",
+              flex:
+                1,
 
-              minHeight: 400,
+              marginTop:
+                26,
 
-              backgroundColor:
-                "#FFFFFF",
+              display:
+                "grid",
 
-              border:
-                "5px solid #111111",
+              gridTemplateColumns:
+                "0.95fr 1.05fr",
 
-              borderRadius: 34,
+              gap:
+                34,
 
-              boxShadow:
-                "0 12px 0 rgba(0,0,0,0.18)",
-
-              padding: 18,
-
-              boxSizing:
-                "border-box",
-
-              display: "flex",
-
-              alignItems:
-                "center",
-
-              justifyContent:
-                "center",
+              minHeight:
+                0,
             }}
           >
+            {/* IMAGEM DA PERGUNTA */}
+
             <div
               style={{
-                width: "100%",
+                width:
+                  "100%",
 
-                height: "100%",
+                height:
+                  "100%",
+
+                minHeight:
+                  390,
 
                 overflow:
                   "hidden",
 
-                borderRadius: 24,
+                backgroundColor:
+                  "#FFFFFF",
 
-                background:
-                  "linear-gradient(135deg, #F8FAFC 0%, #E5E7EB 100%)",
+                border:
+                  "5px solid #111111",
 
-                display: "flex",
+                borderRadius:
+                  32,
+
+                boxShadow:
+                  "0 11px 0 rgba(0,0,0,0.18)",
+
+                padding:
+                  16,
+
+                boxSizing:
+                  "border-box",
+
+                display:
+                  "flex",
 
                 alignItems:
                   "center",
@@ -342,134 +393,128 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
                   "center",
               }}
             >
-              {imageSrc ? (
-                <img
-                  src={
-                    imageSrc
-                  }
-                  alt=""
-                  style={{
-                    width:
-                      "100%",
+              <div
+                style={{
+                  position:
+                    "relative",
 
-                    height:
-                      "100%",
+                  width:
+                    "100%",
 
-                    objectFit:
-                      "contain",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    color:
-                      "#6B7280",
+                  height:
+                    "100%",
 
-                    fontSize:
-                      34,
+                  overflow:
+                    "hidden",
 
-                    fontWeight:
-                      900,
+                  borderRadius:
+                    22,
 
-                    letterSpacing:
-                      "1px",
-                  }}
-                >
-                  IMAGEM
-                </div>
-              )}
-            </div>
-          </div>
+                  background:
+                    "linear-gradient(135deg, #F8FAFC 0%, #E5E7EB 100%)",
 
-          {/* RESPOSTAS */}
+                  display:
+                    "flex",
 
-          <div
-            style={{
-              display: "flex",
+                  alignItems:
+                    "center",
 
-              flexDirection:
-                "column",
-
-              justifyContent:
-                "space-between",
-
-              gap: 20,
-
-              minHeight: 0,
-            }}
-          >
-            {question.options.map(
-              (
-                option,
-                index
-              ) => {
-                const isCorrect =
-                  index ===
-                  question.correctAnswer;
-
-                const highlight =
-                  showCorrect &&
-                  isCorrect;
-
-                return (
-                  <div
-                    key={`${question.id}-${index}`}
+                  justifyContent:
+                    "center",
+                }}
+              >
+                {imageSrc ? (
+                  <Img
+                    src={
+                      imageSrc
+                    }
                     style={{
-                      flex: 1,
+                      width:
+                        "100%",
 
-                      minHeight:
-                        120,
+                      height:
+                        "100%",
 
-                      maxHeight:
-                        150,
+                      objectFit:
+                        question.imageFit ===
+                        "COVER"
+                          ? "cover"
+                          : "contain",
 
-                      display:
-                        "flex",
+                      objectPosition:
+                        `${question.imagePositionX ?? 50}% ${question.imagePositionY ?? 50}%`,
 
-                      alignItems:
-                        "center",
+                      transform:
+                        `scale(${question.imageScale ?? 1})`,
 
-                      padding:
-                        "16px 28px",
+                      transformOrigin:
+                        `${question.imagePositionX ?? 50}% ${question.imagePositionY ?? 50}%`,
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      color:
+                        "#6B7280",
 
-                      boxSizing:
-                        "border-box",
+                      fontSize:
+                        34,
 
-                      backgroundColor:
-                        highlight
-                          ? "#16A34A"
-                          : "#FFFFFF",
-
-                      border:
-                        "5px solid #111111",
-
-                      borderRadius:
-                        30,
-
-                      boxShadow:
-                        "0 10px 0 rgba(0,0,0,0.18)",
+                      fontWeight:
+                        900,
                     }}
                   >
-                    {/* LETRA */}
+                    IMAGEM
+                  </div>
+                )}
+              </div>
+            </div>
 
+            {/* ALTERNATIVAS TEXTO */}
+
+            <div
+              style={{
+                display:
+                  "flex",
+
+                flexDirection:
+                  "column",
+
+                justifyContent:
+                  "space-between",
+
+                gap:
+                  18,
+
+                minHeight:
+                  0,
+              }}
+            >
+              {question.options.map(
+                (
+                  option,
+                  index
+                ) => {
+                  const isCorrect =
+                    index ===
+                    question.correctAnswer;
+
+                  const highlight =
+                    showCorrect &&
+                    isCorrect;
+
+                  return (
                     <div
+                      key={`${question.id}-${index}`}
                       style={{
-                        width: 92,
+                        flex:
+                          1,
 
-                        height: 92,
+                        minHeight:
+                          115,
 
-                        flexShrink: 0,
-
-                        borderRadius:
-                          "50%",
-
-                        backgroundColor:
-                          highlight
-                            ? "#FFFFFF"
-                            : "#EF233C",
-
-                        border:
-                          "5px solid #111111",
+                        maxHeight:
+                          145,
 
                         display:
                           "flex",
@@ -477,111 +522,328 @@ export const QuizQuestionHorizontal: React.FC<Props> = ({
                         alignItems:
                           "center",
 
-                        justifyContent:
-                          "center",
+                        padding:
+                          "14px 26px",
 
-                        fontSize: 52,
+                        boxSizing:
+                          "border-box",
 
-                        fontWeight: 900,
-
-                        lineHeight: 1,
-
-                        color:
+                        backgroundColor:
                           highlight
                             ? "#16A34A"
                             : "#FFFFFF",
 
-                        WebkitTextStroke:
-                          highlight
-                            ? "0"
-                            : "1.5px #111111",
+                        border:
+                          "5px solid #111111",
 
-                        boxShadow:
-                          "0 5px 0 rgba(0,0,0,0.18)",
-                      }}
-                    >
-                      {String.fromCharCode(
-                        65 +
-                          index
-                      )}
-                    </div>
-
-                    {/* TEXTO */}
-
-                    <div
-                      style={{
-                        marginLeft:
+                        borderRadius:
                           28,
 
-                        flex: 1,
-
-                        fontSize:
-                          38,
-
-                        fontWeight:
-                          900,
-
-                        lineHeight:
-                          1.05,
-
-                        color:
-                          highlight
-                            ? "#FFFFFF"
-                            : "#111111",
-
-                        textAlign:
-                          "left",
+                        boxShadow:
+                          "0 9px 0 rgba(0,0,0,0.18)",
                       }}
                     >
-                      {
-                        option.text
-                      }
-                    </div>
-
-                    {/* CHECK */}
-
-                    {highlight && (
                       <div
                         style={{
-                          marginLeft:
-                            18,
+                          width:
+                            86,
+
+                          height:
+                            86,
+
+                          flexShrink:
+                            0,
+
+                          borderRadius:
+                            "50%",
+
+                          backgroundColor:
+                            highlight
+                              ? "#FFFFFF"
+                              : "#EF233C",
+
+                          border:
+                            "5px solid #111111",
+
+                          display:
+                            "flex",
+
+                          alignItems:
+                            "center",
+
+                          justifyContent:
+                            "center",
 
                           fontSize:
-                            42,
+                            48,
 
                           fontWeight:
                             900,
 
+                          lineHeight:
+                            1,
+
                           color:
-                            "#FFFFFF",
+                            highlight
+                              ? "#16A34A"
+                              : "#FFFFFF",
+
+                          boxShadow:
+                            "0 5px 0 rgba(0,0,0,0.18)",
                         }}
                       >
-                        ✓
+                        {String.fromCharCode(
+                          65 +
+                            index
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              }
-            )}
-          </div>
-        </div>
 
-        {/* TEMPORIZADOR */}
+                      <div
+                        style={{
+                          marginLeft:
+                            26,
+
+                          flex:
+                            1,
+
+                          fontSize:
+                            37,
+
+                          fontWeight:
+                            900,
+
+                          lineHeight:
+                            1.05,
+
+                          color:
+                            highlight
+                              ? "#FFFFFF"
+                              : "#111111",
+
+                          textAlign:
+                            "left",
+                        }}
+                      >
+                        {option.text}
+                      </div>
+
+                      {highlight && (
+                        <div
+                          style={{
+                            marginLeft:
+                              18,
+
+                            fontSize:
+                              40,
+
+                            fontWeight:
+                              900,
+
+                            color:
+                              "#FFFFFF",
+                          }}
+                        >
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =================================================
+            IMAGE / IMAGE_TEXT
+            ================================================= */}
+
+        {usesImages && (
+          <>
+            {/* IMAGEM PRINCIPAL DA PERGUNTA */}
+
+            {imageSrc && (
+              <div
+                style={{
+                  width:
+                    "58%",
+
+                  height:
+                    175,
+
+                  marginTop:
+                    18,
+
+                  flexShrink:
+                    0,
+
+                  overflow:
+                    "hidden",
+
+                  backgroundColor:
+                    "#FFFFFF",
+
+                  border:
+                    "5px solid #111111",
+
+                  borderRadius:
+                    28,
+
+                  boxShadow:
+                    "0 9px 0 rgba(0,0,0,0.18)",
+
+                  padding:
+                    10,
+
+                  boxSizing:
+                    "border-box",
+                }}
+              >
+                <div
+                  style={{
+                    position:
+                      "relative",
+
+                    width:
+                      "100%",
+
+                    height:
+                      "100%",
+
+                    overflow:
+                      "hidden",
+
+                    borderRadius:
+                      18,
+
+                    backgroundColor:
+                      "#E5E7EB",
+                  }}
+                >
+                  <Img
+                    src={
+                      imageSrc
+                    }
+                    style={{
+                      width:
+                        "100%",
+
+                      height:
+                        "100%",
+
+                      objectFit:
+                        question.imageFit ===
+                        "COVER"
+                          ? "cover"
+                          : "contain",
+
+                      objectPosition:
+                        `${question.imagePositionX ?? 50}% ${question.imagePositionY ?? 50}%`,
+
+                      transform:
+                        `scale(${question.imageScale ?? 1})`,
+
+                      transformOrigin:
+                        `${question.imagePositionX ?? 50}% ${question.imagePositionY ?? 50}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* TRÊS ALTERNATIVAS */}
+
+            <div
+              style={{
+                width:
+                  "100%",
+
+                marginTop:
+                  imageSrc
+                    ? 20
+                    : 30,
+
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "repeat(3, minmax(0, 1fr))",
+
+                gap:
+                  22,
+
+                alignItems:
+                  "start",
+              }}
+            >
+              {question.options.map(
+                (
+                  option,
+                  index
+                ) => (
+                  <HorizontalImageAnswerOption
+                    key={`${question.id}-${index}`}
+                    letter={
+                      String.fromCharCode(
+                        65 +
+                          index
+                      )
+                    }
+                    text={
+                      option.text
+                    }
+                    image={
+                      option.image
+                    }
+                    answerMode={
+                      answerMode
+                    }
+                    imageFit={
+                      option.imageFit
+                    }
+                    imagePositionX={
+                      option.imagePositionX
+                    }
+                    imagePositionY={
+                      option.imagePositionY
+                    }
+                    imageScale={
+                      option.imageScale
+                    }
+                    isCorrect={
+                      index ===
+                      question.correctAnswer
+                    }
+                    showCorrect={
+                      showCorrect
+                    }
+                  />
+                )
+              )}
+            </div>
+          </>
+        )}
+
+        {/* TIMER */}
 
         <div
           style={{
-            width: "64%",
+            width:
+              "62%",
 
-            marginTop: 30,
+            marginTop:
+              usesImages
+                ? 20
+                : 26,
 
-            marginBottom: 4,
+            marginBottom:
+              2,
           }}
         >
           <CountdownBar
             startFrame={
               introDuration
             }
-
             durationInFrames={
               countdownDuration
             }

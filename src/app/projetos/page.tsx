@@ -6,31 +6,77 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { prisma } from "@/database/prisma";
+import {
+  prisma,
+} from "@/database/prisma";
 
-import { AppShell } from "@/components/layout/AppShell";
-import { ProjectCard } from "@/components/projects/ProjectCard";
+import {
+  AppShell,
+} from "@/components/layout/AppShell";
 
-export const dynamic = "force-dynamic";
+import {
+  ProjectCard,
+} from "@/components/projects/ProjectCard";
+
+export const dynamic =
+  "force-dynamic";
 
 export default async function ProjectsPage() {
-  const projects = await prisma.project.findMany({
-    orderBy: {
-      updatedAt: "desc",
-    },
+  const projects =
+    await prisma.project.findMany({
+      orderBy: {
+        updatedAt:
+          "desc",
+      },
 
-    include: {
-      _count: {
-        select: {
-          questions: true,
+      include: {
+        _count: {
+          select: {
+            questions:
+              true,
+          },
+        },
+
+        /*
+         * Buscamos somente o último
+         * render concluído.
+         *
+         * Não precisamos carregar
+         * todo o histórico aqui.
+         */
+        renders: {
+          where: {
+            status:
+              "COMPLETED",
+
+            outputPath: {
+              not:
+                null,
+            },
+          },
+
+          orderBy: {
+            completedAt:
+              "desc",
+          },
+
+          take:
+            1,
+
+          select: {
+            id:
+              true,
+          },
         },
       },
-    },
-  });
+    });
 
   const totalQuestions =
     projects.reduce(
-      (total, project) =>
+      (
+        total,
+        project
+      ) =>
         total +
         project._count.questions,
       0
@@ -38,9 +84,22 @@ export default async function ProjectsPage() {
 
   return (
     <AppShell>
-      <main className="min-h-screen bg-[#080d16] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-
+      <main
+        className="
+          min-h-screen
+          bg-[#080d16]
+          text-white
+        "
+      >
+        <div
+          className="
+            mx-auto
+            max-w-7xl
+            px-6
+            py-10
+            lg:px-10
+          "
+        >
           {/* CABEÇALHO */}
 
           <header
@@ -67,7 +126,9 @@ export default async function ProjectsPage() {
                   text-violet-400
                 "
               >
-                <Sparkles size={17} />
+                <Sparkles
+                  size={17}
+                />
 
                 QuizVideo AI
               </div>
@@ -114,7 +175,9 @@ export default async function ProjectsPage() {
                 hover:bg-violet-500
               "
             >
-              <Plus size={20} />
+              <Plus
+                size={20}
+              />
 
               Novo projeto
             </Link>
@@ -140,7 +203,12 @@ export default async function ProjectsPage() {
                 p-5
               "
             >
-              <p className="text-sm text-zinc-500">
+              <p
+                className="
+                  text-sm
+                  text-zinc-500
+                "
+              >
                 Projetos
               </p>
 
@@ -165,7 +233,12 @@ export default async function ProjectsPage() {
                 p-5
               "
             >
-              <p className="text-sm text-zinc-500">
+              <p
+                className="
+                  text-sm
+                  text-zinc-500
+                "
+              >
                 Perguntas
               </p>
 
@@ -190,11 +263,23 @@ export default async function ProjectsPage() {
                 p-5
               "
             >
-              <p className="text-sm text-zinc-500">
+              <p
+                className="
+                  text-sm
+                  text-zinc-500
+                "
+              >
                 Motor de vídeo
               </p>
 
-              <div className="mt-2 flex items-center gap-2">
+              <div
+                className="
+                  mt-2
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
                 <div
                   className="
                     h-2.5
@@ -219,7 +304,8 @@ export default async function ProjectsPage() {
 
           {/* PROJETOS */}
 
-          {projects.length > 0 ? (
+          {projects.length >
+          0 ? (
             <section
               className="
                 mt-8
@@ -230,11 +316,19 @@ export default async function ProjectsPage() {
               "
             >
               {projects.map(
-                (project) => (
+                (
+                  project
+                ) => (
                   <ProjectCard
-                    key={project.id}
-                    id={project.id}
-                    title={project.title}
+                    key={
+                      project.id
+                    }
+                    id={
+                      project.id
+                    }
+                    title={
+                      project.title
+                    }
                     questionCount={
                       project._count
                         .questions
@@ -248,7 +342,14 @@ export default async function ProjectsPage() {
                     height={
                       project.height
                     }
-                    fps={project.fps}
+                    fps={
+                      project.fps
+                    }
+                    latestRenderId={
+                      project.renders[0]
+                        ?.id ??
+                      null
+                    }
                   />
                 )
               )}
@@ -283,10 +384,18 @@ export default async function ProjectsPage() {
                   text-violet-400
                 "
               >
-                <Film size={30} />
+                <Film
+                  size={30}
+                />
               </div>
 
-              <h2 className="mt-5 text-xl font-black">
+              <h2
+                className="
+                  mt-5
+                  text-xl
+                  font-black
+                "
+              >
                 Nenhum projeto ainda
               </h2>
 
@@ -318,7 +427,9 @@ export default async function ProjectsPage() {
                   hover:bg-violet-500
                 "
               >
-                <Plus size={18} />
+                <Plus
+                  size={18}
+                />
 
                 Criar primeiro projeto
               </Link>

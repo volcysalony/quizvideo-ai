@@ -1,17 +1,35 @@
 import React from "react";
 
 import {
+  Img,
   staticFile,
 } from "remotion";
 
+import type {
+  QuizImageFit,
+} from "../types/quiz";
+
 type Props = {
   question: string;
+
   image?: string;
+
+  imageFit?: QuizImageFit;
+
+  imagePositionX?: number;
+
+  imagePositionY?: number;
+
+  imageScale?: number;
 };
 
 export const QuestionCard: React.FC<Props> = ({
   question,
   image,
+  imageFit = "CONTAIN",
+  imagePositionX = 50,
+  imagePositionY = 50,
+  imageScale = 1,
 }) => {
   const imageSrc =
     image
@@ -26,15 +44,20 @@ export const QuestionCard: React.FC<Props> = ({
   return (
     <div
       style={{
-        width: "100%",
-        minHeight: 620,
+        width:
+          "100%",
 
-        backgroundColor: "#FFFFFF",
+        minHeight:
+          620,
+
+        backgroundColor:
+          "#FFFFFF",
 
         border:
           "5px solid #111111",
 
-        borderRadius: 44,
+        borderRadius:
+          44,
 
         boxShadow:
           "0 16px 0 rgba(0,0,0,0.20)",
@@ -45,7 +68,8 @@ export const QuestionCard: React.FC<Props> = ({
         boxSizing:
           "border-box",
 
-        display: "flex",
+        display:
+          "flex",
 
         flexDirection:
           "column",
@@ -61,13 +85,17 @@ export const QuestionCard: React.FC<Props> = ({
 
       <div
         style={{
-          width: "100%",
+          width:
+            "100%",
 
-          fontSize: 66,
+          fontSize:
+            66,
 
-          fontWeight: 900,
+          fontWeight:
+            900,
 
-          lineHeight: 1.06,
+          lineHeight:
+            1.06,
 
           textAlign:
             "center",
@@ -85,22 +113,27 @@ export const QuestionCard: React.FC<Props> = ({
         {question}
       </div>
 
-      {/* ÁREA DA IMAGEM */}
+      {/* IMAGEM */}
 
       <div
         style={{
-          width: "82%",
+          width:
+            "82%",
 
-          height: 330,
+          height:
+            330,
 
-          marginTop: 38,
+          marginTop:
+            38,
 
-          borderRadius: 34,
+          borderRadius:
+            34,
 
           overflow:
             "hidden",
 
-          display: "flex",
+          display:
+            "flex",
 
           alignItems:
             "center",
@@ -110,12 +143,16 @@ export const QuestionCard: React.FC<Props> = ({
 
           position:
             "relative",
+
+          backgroundColor:
+            "#E5E7EB",
         }}
       >
         {imageSrc ? (
-          <img
-            src={imageSrc}
-            alt=""
+          <Img
+            src={
+              imageSrc
+            }
             style={{
               width:
                 "100%",
@@ -124,7 +161,19 @@ export const QuestionCard: React.FC<Props> = ({
                 "100%",
 
               objectFit:
-                "contain",
+                imageFit ===
+                "COVER"
+                  ? "cover"
+                  : "contain",
+
+              objectPosition:
+                `${imagePositionX}% ${imagePositionY}%`,
+
+              transform:
+                `scale(${imageScale})`,
+
+              transformOrigin:
+                `${imagePositionX}% ${imagePositionY}%`,
             }}
           />
         ) : (

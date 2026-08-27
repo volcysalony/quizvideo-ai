@@ -1,3 +1,7 @@
+import {
+  mkdir,
+} from "node:fs/promises";
+
 import path from "node:path";
 
 import {
@@ -11,242 +15,386 @@ import {
 
 import {
   prisma,
-} from "../../database/prisma";
+} from "@/database/prisma";
 
 import {
   getProjectForRender,
-} from "../projects/getProjectForRender";
+} from "@/features/projects/getProjectForRender";
 
 type RenderProjectResult = {
   outputPath: string;
 };
 
 export async function renderProject(
-  projectId: string
+  projectId: string,
+  renderId: string
 ): Promise<RenderProjectResult> {
-  console.log("");
+  try {
+    /*
+     * =====================================================
+     * PROJETO
+     * =====================================================
+     */
 
-  console.log(
-    "🎬 Preparando projeto para renderização..."
-  );
+    const project =
+      await prisma.project.findUnique({
+        where: {
+          id: projectId,
+        },
 
-  /*
-   * BUSCA CONFIGURAÇÃO DO PROJETO
-   */
+        select: {
+          id: true,
+          title: true,
+          format: true,
+        },
+      });
 
-  const project =
-    await prisma.project.findUnique({
+    if (!project) {
+      throw new Error(
+        `Projeto não encontrado: ${projectId}`
+      );
+    }
+
+    /*
+     * =====================================================
+     * MARCA O INÍCIO
+     * =====================================================
+     */
+
+    await prisma.render.update({
       where: {
-        id: projectId,
+        id: renderId,
       },
 
-      select: {
-        id: true,
-
-        title: true,
-
-        format: true,
-
-        width: true,
-
-        height: true,
+      data: {
+        status: "RENDERING",
+        progress: 1,
+        startedAt: new Date(),
+        errorMessage: null,
       },
     });
 
-  if (!project) {
-    throw new Error(
-      `Projeto não encontrado: ${projectId}`
-    );
-  }
+    /*
+     * =====================================================
+     * PROPS
+     * =====================================================
+     */
 
-  /*
-   * PROPS PARA O REMOTION
-   */
+    const inputProps =
+      await getProjectForRender(
+        projectId
+      );
 
-  const inputProps =
-    await getProjectForRender(
-      projectId
-    );
+    if (
+      inputProps.questions.length === 0
+    ) {
+      throw new Error(
+        "O projeto não possui perguntas para renderizar."
+      );
+    }
 
-  console.log(
-    `📚 Projeto: ${inputProps.title}`
-  );
+    /*
+     * =====================================================
+     * COMPOSIÇÃO
+     * =====================================================
+     */
 
-  console.log(
-    `❓ Perguntas: ${inputProps.questions.length}`
-  );
+    const compositionId =
+      project.format ===
+      "HORIZONTAL"
+        ? "QuizHorizontal"
+        : "QuizVertical";
 
-  console.log(
-    `📐 Formato: ${project.format}`
-  );
+    /*
+     * =====================================================
+     * BUNDLE
+     * =====================================================
+     */
 
-  /*
-   * ESCOLHE A COMPOSIÇÃO
-   */
+    await prisma.render.update({
+      where: {
+        id: renderId,
+      },
 
-  const compositionId =
-    project.format ===
-    "HORIZONTAL"
-      ? "QuizHorizontal"
-      : "QuizVertical";
-
-  console.log(
-    `🎞️ Composição: ${compositionId}`
-  );
-
-  /*
-   * BUNDLE
-   */
-
-  console.log("");
-
-  console.log(
-    "📦 Preparando bundle do Remotion..."
-  );
-
-  const serveUrl =
-    await bundle({
-      entryPoint:
-        path.resolve(
-          process.cwd(),
-
-          "src",
-
-          "remotion",
-
-          "index.ts"
-        ),
-
-      webpackOverride:
-        (config) =>
-          config,
+      data: {
+        progress: 3,
+      },
     });
 
-  console.log(
-    "✅ Bundle pronto."
-  );
+    console.log(
+      `📦 Criando bundle para ${compositionId}...`
+    );
 
-  /*
-   * SELECIONA COMPOSIÇÃO
-   */
+    const serveUrl =
+      await bundle({
+        entryPoint:
+          path.resolve(
+            process.cwd(),
+            "src",
+            "remotion",
+            "index.ts"
+          ),
 
-  console.log("");
+        webpackOverride:
+          (config) =>
+            config,
+      });
 
-  console.log(
-    "🎞️ Calculando composição..."
-  );
+    /*
+     * =====================================================
+     * METADATA
+     * =====================================================
+     */
 
-  const composition =
-    await selectComposition({
+    await prisma.render.update({
+      where: {
+        id: renderId,
+      },
+
+      data: {
+        progress: 5,
+      },
+    });
+
+    const composition =
+      await selectComposition({
+        serveUrl,
+
+        id:
+          compositionId,
+
+        inputProps,
+      });
+
+    /*
+     * =====================================================
+     * OUTPUT
+     * =====================================================
+     */
+
+    const safeTitle =
+      inputProps.title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .replace(
+          /[^a-z0-9]+/g,
+          "-"
+        )
+        .replace(
+          /^-|-$/g,
+          ""
+        ) || "quiz";
+
+    const formatSuffix =
+      project.format ===
+      "HORIZONTAL"
+        ? "horizontal"
+        : "vertical";
+
+    const relativeOutputPath =
+      path.join(
+        "storage",
+        "renders",
+        `${safeTitle}-${formatSuffix}-${renderId}.mp4`
+      );
+
+    const absoluteOutputPath =
+      path.resolve(
+        process.cwd(),
+        relativeOutputPath
+      );
+
+    await mkdir(
+      path.dirname(
+        absoluteOutputPath
+      ),
+      {
+        recursive: true,
+      }
+    );
+
+    /*
+     * =====================================================
+     * RENDER
+     * =====================================================
+     */
+
+    console.log(
+      `🎬 Renderizando ${project.title}...`
+    );
+
+    let lastSavedProgress =
+      5;
+
+    await renderMedia({
+      composition,
+
       serveUrl,
 
-      id:
-        compositionId,
+      codec:
+        "h264",
+
+      outputLocation:
+        absoluteOutputPath,
 
       inputProps,
+
+      onProgress: ({
+        progress,
+      }) => {
+        /*
+         * Reservamos:
+         *
+         * 0-5% para preparação
+         * 5-99% para o Remotion
+         * 100% para conclusão.
+         */
+
+        const percentage =
+          Math.min(
+            99,
+            Math.max(
+              5,
+              Math.round(
+                5 +
+                  progress *
+                    94
+              )
+            )
+          );
+
+        /*
+         * Não fazemos UPDATE
+         * a cada frame.
+         *
+         * Apenas quando muda pelo
+         * menos 2 pontos percentuais.
+         */
+
+        if (
+          percentage -
+            lastSavedProgress <
+          2
+        ) {
+          return;
+        }
+
+        lastSavedProgress =
+          percentage;
+
+        void prisma.render
+          .update({
+            where: {
+              id:
+                renderId,
+            },
+
+            data: {
+              progress:
+                percentage,
+            },
+          })
+          .catch(
+            (error) => {
+              console.error(
+                "Erro ao atualizar progresso:",
+                error
+              );
+            }
+          );
+      },
     });
 
-  console.log(
-    `⏱️ Frames: ${composition.durationInFrames}`
-  );
+    /*
+     * =====================================================
+     * CONCLUÍDO
+     * =====================================================
+     */
 
-  console.log(
-    `🎥 Resolução: ${composition.width}x${composition.height}`
-  );
-
-  console.log(
-    `⚡ FPS: ${composition.fps}`
-  );
-
-  /*
-   * NOME DO ARQUIVO
-   */
-
-  const safeTitle =
-    inputProps.title
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .replace(
-        /[^a-z0-9]+/g,
-        "-"
-      )
-      .replace(
-        /^-|-$/g,
-        ""
+    const normalizedOutputPath =
+      relativeOutputPath.replace(
+        /\\/g,
+        "/"
       );
 
-  const formatSuffix =
-    project.format ===
-    "HORIZONTAL"
-      ? "horizontal"
-      : "vertical";
+    await prisma.render.update({
+      where: {
+        id: renderId,
+      },
 
-  const outputPath =
-    path.resolve(
-      process.cwd(),
+      data: {
+        status:
+          "COMPLETED",
 
-      "storage",
+        progress:
+          100,
 
-      "renders",
+        outputPath:
+          normalizedOutputPath,
 
-      `${safeTitle}-${formatSuffix}-${Date.now()}.mp4`
+        completedAt:
+          new Date(),
+
+        errorMessage:
+          null,
+      },
+    });
+
+    console.log(
+      `✅ Render concluído: ${normalizedOutputPath}`
     );
 
-  /*
-   * RENDER
-   */
+    return {
+      outputPath:
+        normalizedOutputPath,
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Erro desconhecido durante a renderização.";
 
-  console.log("");
+    /*
+     * Se inclusive este update
+     * falhar, preservamos o erro
+     * original no console.
+     */
 
-  console.log(
-    "🚀 Iniciando renderização..."
-  );
+    try {
+      await prisma.render.update({
+        where: {
+          id: renderId,
+        },
 
-  await renderMedia({
-    composition,
+        data: {
+          status:
+            "FAILED",
 
-    serveUrl,
+          errorMessage:
+            message,
 
-    codec:
-      "h264",
-
-    outputLocation:
-      outputPath,
-
-    inputProps,
-
-    onProgress: ({
-      progress,
-    }) => {
-      const percentage =
-        Math.round(
-          progress *
-            100
-        );
-
-      process.stdout.write(
-        `\rRenderizando: ${percentage}%`
+          completedAt:
+            new Date(),
+        },
+      });
+    } catch (
+      updateError
+    ) {
+      console.error(
+        "Erro ao registrar falha do render:",
+        updateError
       );
-    },
-  });
+    }
 
-  console.log("");
+    console.error(
+      "❌ Erro durante o render:",
+      error
+    );
 
-  console.log("");
-
-  console.log(
-    "✅ Vídeo renderizado!"
-  );
-
-  console.log(
-    `📁 ${outputPath}`
-  );
-
-  return {
-    outputPath,
-  };
+    throw error;
+  }
 }

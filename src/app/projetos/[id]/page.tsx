@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Film,
   Play,
+  ScanText,
 } from "lucide-react";
 
 import { prisma } from "@/database/prisma";
@@ -30,8 +31,7 @@ type Props = {
 export default async function ProjectEditorPage({
   params,
 }: Props) {
-  const { id } =
-    await params;
+  const { id } = await params;
 
   const project =
     await prisma.project.findUnique({
@@ -61,9 +61,11 @@ export default async function ProjectEditorPage({
   }
 
   const quizProps: QuizVideoProps = {
-    title: project.title,
+    title:
+      project.title,
 
-    fps: project.fps,
+    fps:
+      project.fps,
 
     introSeconds:
       project.introSeconds,
@@ -77,7 +79,8 @@ export default async function ProjectEditorPage({
     questions:
       project.questions.map(
         (question) => ({
-          id: question.id,
+          id:
+            question.id,
 
           question:
             question.text,
@@ -85,6 +88,27 @@ export default async function ProjectEditorPage({
           image:
             question.imagePath ??
             undefined,
+
+          imageFit:
+            question.imageFit ===
+            "COVER"
+              ? "COVER"
+              : "CONTAIN",
+
+          imagePositionX:
+            question.imagePositionX,
+
+          imagePositionY:
+            question.imagePositionY,
+
+          imageScale:
+            question.imageScale,
+
+          answerMode:
+            question.answerMode as
+              | "TEXT"
+              | "IMAGE"
+              | "IMAGE_TEXT",
 
           correctAnswer:
             question.correctAnswer,
@@ -101,6 +125,21 @@ export default async function ProjectEditorPage({
                 image:
                   option.imagePath ??
                   undefined,
+
+                imageFit:
+                  option.imageFit ===
+                  "CONTAIN"
+                    ? "CONTAIN"
+                    : "COVER",
+
+                imagePositionX:
+                  option.imagePositionX,
+
+                imagePositionY:
+                  option.imagePositionY,
+
+                imageScale:
+                  option.imageScale,
               })
             ),
         })
@@ -288,16 +327,57 @@ export default async function ProjectEditorPage({
                 </h2>
 
                 <p className="mt-1 text-sm text-zinc-500">
-                  Edite o conteúdo que será
-                  exibido no vídeo.
+                  Edite manualmente ou importe várias
+                  perguntas de uma só vez.
                 </p>
               </div>
 
-              <AddQuestionButton
-                projectId={
-                  project.id
-                }
-              />
+              {/* AÇÕES DAS PERGUNTAS */}
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  gap-3
+                  sm:flex-row
+                  sm:items-center
+                "
+              >
+                <Link
+                  href={`/projetos/${project.id}/importar`}
+                  className="
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    border
+                    border-violet-500/30
+                    bg-violet-500/[0.07]
+                    px-4
+                    py-3
+                    text-sm
+                    font-bold
+                    text-violet-300
+                    transition
+                    hover:border-violet-500/50
+                    hover:bg-violet-500/10
+                    hover:text-violet-200
+                  "
+                >
+                  <ScanText
+                    size={18}
+                  />
+
+                  Importar perguntas
+                </Link>
+
+                <AddQuestionButton
+                  projectId={
+                    project.id
+                  }
+                />
+              </div>
             </div>
 
             {project.questions
@@ -341,14 +421,68 @@ export default async function ProjectEditorPage({
                   text-center
                 "
               >
-                <h3 className="font-black">
+                <div
+                  className="
+                    mx-auto
+                    flex
+                    h-14
+                    w-14
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    bg-violet-500/10
+                    text-violet-400
+                  "
+                >
+                  <ScanText
+                    size={26}
+                  />
+                </div>
+
+                <h3 className="mt-4 font-black">
                   Nenhuma pergunta ainda
                 </h3>
 
-                <p className="mt-2 text-sm text-zinc-500">
-                  Clique em adicionar pergunta
-                  para começar o seu quiz.
+                <p
+                  className="
+                    mx-auto
+                    mt-2
+                    max-w-md
+                    text-sm
+                    leading-6
+                    text-zinc-500
+                  "
+                >
+                  Adicione uma pergunta manualmente
+                  ou importe várias perguntas em massa
+                  para montar o quiz mais rápido.
                 </p>
+
+                <Link
+                  href={`/projetos/${project.id}/importar`}
+                  className="
+                    mt-6
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    bg-violet-600
+                    px-5
+                    py-3
+                    text-sm
+                    font-bold
+                    text-white
+                    transition
+                    hover:bg-violet-500
+                  "
+                >
+                  <ScanText
+                    size={18}
+                  />
+
+                  Importar perguntas
+                </Link>
               </div>
             )}
           </section>
